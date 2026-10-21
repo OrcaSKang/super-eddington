@@ -3,14 +3,11 @@ from astropy.table import Table
 
 
 def find_bursts(data, thresh=1.0, gap_myr=0.1, min_dur_myr=0.001):
-    t = np.array(data['time']) * 1e3
-    f = np.array(data['f_edd'])
-    dotMaccr = np.array(data['dotMaccr'])
-    dotMedd = np.array(data['dotMedd'])
+    t = data['time'] * 1e3
+    f = data['f_edd']
+    dotMaccr = data['dotMaccr']
+    dotMedd = data['dotMedd']
     ratio_edd = dotMaccr / dotMedd
-
-    m = ratio_edd > 0
-    ratio_edd[m]
 
     above = f > thresh
 
@@ -39,13 +36,15 @@ def find_bursts(data, thresh=1.0, gap_myr=0.1, min_dur_myr=0.001):
             i_start=s, i_end=e - 1,
             t_start_myr=t[s], t_end_myr=t[e - 1], duration_myr=dur,
             z_start=data['z'][s], z_end=data['z'][e-1],
-            aexp_start=float(data['aexp'][s]), aexp_end=float(data['aexp'][e - 1]),
-            M_start=float(data['BHmass'][s]),
-            M_end=float(data['BHmass'][e]),
-            dM_accr=float(np.sum(np.asarray(data['dMgrowth'])[s:e])),
+            aexp_start=data['aexp'][s], aexp_end=data['aexp'][e - 1],
+            M_start=data['BHmass'][s],
+            M_end=data['BHmass'][e-1],
+            dM_accr=np.sum(np.asarray(data['dMgrowth'])[s:e]),
             E_feed=np.sum(data['Efeed'][s:e]),
-            f_edd_max=float(f[s:e].max()),
-            dM_edd_max=float(ratio_edd[s:e].max())
+            E_feed_Th=np.sum(data['Efeed_Th'][s:e]),
+            E_feed_Ki=np.sum(data['Efeed_Ki'][s:e]),
+            f_edd_max=f[s:e].max(),
+            dM_edd_max=ratio_edd[s:e].max()
         ))
     return Table(rows=rows)
 
